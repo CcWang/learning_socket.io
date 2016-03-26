@@ -12,7 +12,7 @@
   		if (user !=null) {
   			socket.emit('got_a_new_user',{user:user});
   		};
-			var string ='<h4>Online User lists</h4>';
+			var string ='<h4>Online User list</h4>';
 			var all_messages = '<ul id="new_message">';
   		socket.on('all_user', function(data){
   			// console.log(data);
