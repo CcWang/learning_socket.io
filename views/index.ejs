@@ -12,7 +12,8 @@
   		if (user !=null) {
   			socket.emit('got_a_new_user',{user:user});
   		};
-			var string ='';
+			var string ='<h4>Online User lists</h4>';
+			var all_messages = '<ul id="new_message">';
   		socket.on('all_user', function(data){
   			// console.log(data);
   			for (var i = 0; i < data.user.length; i++) {
@@ -24,10 +25,9 @@
   				}
   			}
 		  	$('#container').html(string);
-  		})
+  		});
 
   		socket.on('new_user', function(data){
-  			console.log('new_user', data);
   			var new_user='';
   			for(var key in data.user[0]){
 		  			new_user += '<div class="user" id="'+key+'"><p>';
@@ -36,28 +36,74 @@
   				}
   			$('#container').append(new_user);
 
+  		});
+
+  		$('form').submit(function(){
+  			var message = $('#message').val();
+  			$('#message').val('');
+  			// console.log(message);
+  			socket.emit('get_a_message', {name: user, message:message});
+  			return false
+  		});
+
+  		socket.on('all_messages', function(data){
+  			console.log('message',data);
+  				for (var i = 0; i < data.messages.length; i++) {
+  				for(var key in data.messages[i]){
+  					// console.log(data.user[i][key])
+		  			all_messages += '<li>'+key+': ';
+		  			all_messages +=data.messages[i][key];
+		  			all_messages += '</li>';
+  				}
+  			}
+  			all_messages +='</ul>';
+		  	$('#box').html(all_messages);
+  		});
+
+  		socket.on('a_new_message', function(data){
+  			console.log('a_new_message',data)
+  			var new_message = '';
+  			for(var key in data.message){
+  					// console.log(data.user[i][key])
+		  			new_message += '<li>'+key+': ';
+		  			new_message +=data.message[key];
+		  			new_message += '</li>';
+  				}
+  			$('#new_message').append(new_message);
   		})
+
   		socket.on('exit_user', function(data){
   			console.log(data);
   			var user = document.getElementById(data.exit);
   			var parent = document.getElementById('container');
   			parent.removeChild(user);
-  		})
+  		});
+
   	})
   </script>
   <style type="text/css">
   .user {
-  	border: 1px solid black;
-  	width: 50px;
-  	height: 50px;
-  	display: inline-block;
+  	width: 35px;
+  	height: 35px;
   	margin: 5px;
+  }
+
+  #box {
+  	border: 1px solid black;
   }
   </style>
 </head>
 <body>
 	<div id="container">
 		
+	</div>
+	<div>
+		<h1>Conversation Board</h1>
+		<div id="box"></div>
+		<form action="/message" method="post">
+			<input type="text" placeholder="enter your message here" id="message"></input>
+			<input type="submit" value="Send"></input>
+		</form>
 	</div>
 </body>
 </html>
