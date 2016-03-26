@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chat Room</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript">
+  	$(document).ready(function () {
+  		// body...
+  		var socket = io.connect();
+  		var user = prompt("Your Name:");
+  		if (user !=null) {
+  			socket.emit('got_a_new_user',{user:user});
+  		};
+			var string ='';
+  		socket.on('all_user', function(data){
+  			// console.log(data);
+  			for (var i = 0; i < data.user.length; i++) {
+  				for(var key in data.user[i]){
+  					// console.log(data.user[i][key])
+		  			string += '<div class="user" id="'+key+'"><p>';
+		  			string +=data.user[i][key];
+		  			string += '</p></div>';
+  				}
+  			}
+		  	$('#container').html(string);
+  		})
+
+  		socket.on('new_user', function(data){
+  			console.log('new_user', data);
+  			var new_user='';
+  			for(var key in data.user[0]){
+		  			new_user += '<div class="user" id="'+key+'"><p>';
+		  			new_user +=data.user[0][key];
+		  			new_user += '</p></div>';
+  				}
+  			$('#container').append(new_user);
+
+  		})
+  		socket.on('exit_user', function(data){
+  			console.log(data);
+  			var user = document.getElementById(data.exit);
+  			var parent = document.getElementById('container');
+  			parent.removeChild(user);
+  		})
+  	})
+  </script>
+  <style type="text/css">
+  .user {
+  	border: 1px solid black;
+  	width: 50px;
+  	height: 50px;
+  	display: inline-block;
+  	margin: 5px;
+  }
+  </style>
+</head>
+<body>
+	<div id="container">
+		
+	</div>
+</body>
+</html>
